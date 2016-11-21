@@ -10,11 +10,12 @@
             "index" : "",//index name
             "type" : "",//type name
             "queryJson" : "",//queryBuilders.toString
-            "gourpBy" : "",//terms field
+            "groupBy" : "",//terms field
             "sortMetric" : "",//sort metric
             "sortType" : "",//such as,max,min,avg...
             "topSize" : "",//topHits size
             "topHitsOrderJson" : "[{\"time\" : {\"order\": \"desc\"}}]"//topHitsOrderJsonArray
+            "metricOrderType" : ""//desc asc
             "number" : "",//page size
             "page" : "",//page index
     }

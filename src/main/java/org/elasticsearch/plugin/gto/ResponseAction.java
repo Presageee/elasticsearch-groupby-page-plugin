@@ -59,6 +59,8 @@ public class ResponseAction {
         }
     }
 
+
+
     private void buildResponseInfo(SearchResponse sr, RequestParam rp, RestChannel channel) {
         ResponseInfo info = new ResponseInfo();
         List<List<String>> results = new ArrayList<>();
@@ -80,7 +82,31 @@ public class ResponseAction {
         BytesRestResponse brr = new BytesRestResponse(RestStatus.OK, JSON.toJSONString(info));
         channel.sendResponse(brr);
     }
+    public void localTest(RequestParam rp) throws IOException {
+        TransportClient client = TransportClient.builder().build().addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("es"), 9388));
+        //RequestParam rp = JSON.parseObject(param, RequestParam.class);
+        XContentBuilder builder = null;
+        try {
+            builder = XContentFactory.jsonBuilder()
+                    .startObject()
+                    .field("size", 0);
+            if (rp.getQueryJson() != null) {
+                builder.field("query", JSON.parseObject(rp.getQueryJson()));
+            }
+            JSONObject aggs = new JSONObject();
+            //aggs.put("result", buildAggs(rp));
 
+            builder.field("aggs", buildAggs(rp));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(builder.string());
+        SearchResponse response = client.prepareSearch().setIndices(rp.getIndex()).setTypes(rp.getType())
+                .setSource(builder.string()).execute().actionGet();
+        int d = 5;
+        System.out.println(response.toString());
+        //buildResponseInfo(response, rp);
+    }
     private JSONObject buildAggs(RequestParam rp) throws Exception {
         JSONObject group = new JSONObject();
         JSONObject terms = new JSONObject();
@@ -129,4 +155,34 @@ public class ResponseAction {
         return all;
     }
 
+    public static void main(String[] args) throws IOException {
+        ResponseAction responseAction = new ResponseAction();
+        RequestParam rp = JSON.parseObject("{\n" +
+                "        \"index\" : \"stkj_sf_rt_capture\",\n" +
+                "        \"type\" : \"history\",\n" +
+                "        \"groupBy\" : \"trackId\",\n" +
+                "        \"sortMetric\" : \"time\",\n" +
+                "        \"sortType\" : \"max\",\n" +
+                "        \"number\" : 10,\n" +
+                "        \"page\" : 1,\n" +
+                "        \"queryJson\": \"{\n" +
+                "  \\\"and\\\" : {\n" +
+                "    \\\"filters\\\" : [ {\n" +
+                "      \\\"range\\\" : {\n" +
+                "        \\\"time\\\" : {\n" +
+                "          \\\"from\\\" : 1473527532000,\n" +
+                "          \\\"to\\\" : 1478797932000,\n" +
+                "          \\\"include_lower\\\" : false,\n" +
+                "          \\\"include_upper\\\" : false\n" +
+                "        }\n" +
+                "      }\n" +
+                "    } ]\n" +
+                "  }\n"
+                "}\",\n" +
+                "        \"topSize\": 1,\n" +
+                "        \"metricOrderType\" : \"desc\",\n" +
+                "        \"topHitsOrderJson\" : \"[{\\\"time\\\" : {\\\"order\\\": \\\"desc\\\"}}]\"\n" +
+                "    }", RequestParam.class);
+        responseAction.localTest(rp);
+    }
 }
