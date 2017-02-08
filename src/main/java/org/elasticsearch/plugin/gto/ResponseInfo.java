@@ -4,7 +4,6 @@ import java.util.List;
 
 /**
  * Created by LJT on 16-11-18.
- * email: linjuntan@sensetime.com
  */
 public class ResponseInfo {
     private int cnt;

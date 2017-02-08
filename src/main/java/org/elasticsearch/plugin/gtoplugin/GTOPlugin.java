@@ -8,12 +8,11 @@ import java.util.Collections;
 
 /**
  * Created by LJT on 16-11-17.
- * email: linjuntan@sensetime.com
  */
 public class GTOPlugin extends Plugin {
     @Override
     public String name() {
-        return "elasticsearch-senseface-plugin";
+        return "groupBy";
     }
 
     @Override

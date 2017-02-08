@@ -6,9 +6,11 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugin.gto.ResponseAction;
 import org.elasticsearch.rest.*;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /**
  * Created by LJT on 16-11-17.
- * email: linjuntan@sensetime.com
  */
 public class GTORestHandler extends BaseRestHandler {
     @Inject
@@ -28,11 +30,16 @@ public class GTORestHandler extends BaseRestHandler {
         if (param == null) {
             param = request.content().toUtf8();
         }
+        System.out.println(param);
         ResponseAction responseAction = new ResponseAction();
         try {
             responseAction.execute(client, channel, param);
         } catch (Exception e) {
-            channel.sendResponse(new BytesRestResponse(RestStatus.BAD_REQUEST, "Json parse error or type error"));
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            channel.sendResponse(new BytesRestResponse(RestStatus.BAD_REQUEST, "Json parse error or type error: " + e.getMessage() + "\r\n" + sw.toString() + "\r\n"));
         }
     }
 }
